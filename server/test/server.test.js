@@ -1,3 +1,6 @@
+/* eslint-disable no-undef, consistent-return
+*/
+
 // modules
 const expect = require('expect');
 const request = require('supertest');
@@ -6,16 +9,28 @@ const request = require('supertest');
 const { app } = require('./../server');
 const { Todo } = require('./../models/todo');
 
-// purge database before test
+// reset database before test
+
+const todos = [
+  {
+    text: 'First test todo',
+  },
+  {
+    text: 'Second test todo',
+  },
+];
+
 beforeEach((done) => {
-  Todo.remove({}).then(() => done());
+  Todo.remove({})
+    .then(() => Todo.insertMany(todos))
+    .then(() => done());
 });
 
 // POST tests
 describe('POST /todos', () => {
   // testing for post to db
   it('should create a new todo', (done) => {
-    const text = 'this is a test string';
+    const text = 'custom POST for testing';
 
     request(app)
       .post('/todos')
@@ -31,17 +46,17 @@ describe('POST /todos', () => {
 
         Todo.find()
           .then((todos) => {
-            expect(todos.length).toBe(1);
-            expect(todos[0].text).toBe(text);
+            expect(todos.length).toBe(3);
+            expect(todos[2].text).toBe(text);
             done();
           })
           .catch(e => done(e));
       });
   });
 
+  // testing for not posting
   it('should not create a todo with an empty body', (done) => {
     const text = '';
-
     request(app)
       .post('/todos')
       .send({ text })
@@ -50,13 +65,25 @@ describe('POST /todos', () => {
         if (err) {
           return done(err);
         }
-
         Todo.find()
           .then((todos) => {
-            expect(todos.length).toBe(0);
+            expect(todos.length).toBe(2);
             done();
           })
           .catch(e => done(e));
       });
+  });
+});
+
+// GET testing
+describe('GET /todos', () => {
+  it('should get all todos', (done) => {
+    request(app)
+      .get('/todos')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todos.length).toBe(2);
+      })
+      .end(done);
   });
 });
