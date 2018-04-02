@@ -1,77 +1,25 @@
-// everything starts here
+// library modules
+const express = require('express');
+const bodyParser = require('body-parser');
 
-const mongoose = require('mongoose');
+// mongoose
+const { mongoose } = require('./db/mongoose');
 
-// make mongoose use global Promises
-mongoose.Promise = global.Promise;
-// connect
-mongoose.connect('mongodb://localhost:27017/TodoApp');
+// models
+const { Todo } = require('./models/todo');
+const { Users } = require('./models/users');
 
-// create database model
-const Todo = mongoose.model('Todo', {
-  text: {
-    type: String,
-    required: true,
-    minlength: 1,
-    trim: true,
-  },
-  completed: {
-    type: Boolean,
-    default: false,
-  },
-  completedAt: {
-    type: Number,
-    default: null,
-  },
+const app = express();
+
+app.use(bodyParser.json());
+
+app.post('/todos', (req, res) => {
+  const todo = new Todo({
+    text: req.body.text,
+  });
+  todo.save().then(doc => res.status(200).send(doc), e => res.status(400).send(e));
 });
 
-const Users = mongoose.model('Users', {
-  user: {
-    type: String,
-    require: true,
-    minlength: 1,
-    trim: true,
-  },
-  email: {
-    type: String,
-    require: true,
-    minlength: 1,
-    trim: true,
-  },
+app.listen(3000, () => {
+  console.log('Started on port 3000');
 });
-// samples
-
-// const newUser = new Users({
-//   user: 'Jared',
-//   email: 'Jared@me.me',
-// });
-
-// newUser.save().then(
-//   (res) => {
-//     console.log(`Success ${res}`);
-//   },
-//   (e) => {
-//     console.log(`Oh shit >>> ${e}`);
-//   },
-// );
-
-// const newTodo = new Todo({
-//   text: 'cook dinner',
-// });
-
-// newTodo
-//   .save()
-//   .then(() => console.log('saved item'), e => console.log(`${e} >>> unable to save todo`));
-
-// const newTodoTwo = new Todo({
-//   text: 'clean cat poop',
-//   completed: true,
-//   completedAt: 835,
-// });
-
-// newTodoTwo
-//   .save()
-//   .then(
-//     () => console.log(`saved item ${newTodoTwo}`),
-//     e => console.log(`${e} >>> unable to save ${newTodoTwo}`),
-//   );
