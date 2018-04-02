@@ -19,6 +19,7 @@
     "eslint-plugin-standard": "^3.0.1"
   },
   "dependencies": {
-    "mongodb": "^2.2.5"
+    "mongodb": "^2.2.5",
+    "mongoose": "^4.5.9"
   }
 }
