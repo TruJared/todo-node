@@ -31,7 +31,6 @@ beforeEach((done) => {
 
 // POST tests
 describe('POST /todos', () => {
-  // testing for post to db
   it('should create a new todo', (done) => {
     const text = 'custom POST for testing';
 
@@ -79,7 +78,6 @@ describe('POST /todos', () => {
 });
 
 // GET testing
-// GET all todos
 describe('GET /todos', () => {
   it('should get all todos', (done) => {
     request(app)
