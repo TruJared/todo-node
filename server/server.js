@@ -13,6 +13,9 @@ const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
 const { User } = require('./models/users');
 
+// middleware
+const { authenticate } = require('./middleware/authenticate');
+
 const app = express();
 const port = process.env.PORT;
 
@@ -110,10 +113,8 @@ app.post('/users', (req, res) => {
   }
 });
 
-// GET /user
-app.get('/users', (req, res) => {
-  User.find().then(user => res.status(200).send({ user }), e => res.status(400).send(e));
-});
+// GET /user/me
+app.get('/users/me', authenticate, (req, res) => res.send(req.user));
 
 app.listen(port, () => {
   console.log(`Started on port ${port}`);

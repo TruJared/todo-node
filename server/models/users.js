@@ -1,3 +1,5 @@
+/* eslint-disable func-names */
+
 const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
@@ -34,7 +36,6 @@ const UserSchema = new mongoose.Schema({
   ],
 });
 
-/* eslint-disable-next-line func-names */
 UserSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
@@ -42,7 +43,6 @@ UserSchema.methods.toJSON = function () {
   return _.pick(userObject, ['_id', 'email']);
 };
 
-/* eslint-disable-next-line func-names */
 UserSchema.methods.generateAuthToken = function () {
   const user = this;
   const access = 'auth';
@@ -64,6 +64,23 @@ UserSchema.methods.generateAuthToken = function () {
   ]);
 
   return user.save().then(() => token);
+};
+
+UserSchema.statics.findByToken = function (token) {
+  const User = this;
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, 'secretSalt');
+  } catch (e) {
+    return Promise.reject();
+  }
+
+  return User.findOne({
+    _id: decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth',
+  });
 };
 
 const User = mongoose.model('Users', UserSchema);
