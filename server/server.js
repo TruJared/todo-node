@@ -98,15 +98,16 @@ app.post('/users', (req, res) => {
   const user = new User(body);
 
   if (user.email && user.password) {
-    return user.save().then(user =>
-      res
-        .status(200)
-        .send(user)
-        .catch((e) => {
-          res.status(400).send(e);
-        }));
+    user
+      .save()
+      .then(() => user.generateAuthToken())
+      .then((token) => {
+        res.header('x-auth', token).send(user);
+      })
+      .catch(e => res.status(400).send(e));
+  } else {
+    res.status(400).send('Invalid user name or password');
   }
-  res.send('invalid user name or password');
 });
 
 // GET /user
